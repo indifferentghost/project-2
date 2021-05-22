@@ -2,19 +2,19 @@
   "name": "max",
   "version": "1.0.0",
   "description": "",
-  "main": "post.js",
+  "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "client": "node client.js"
   },
   "author": "Guillermo",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^9.0.2",
-    "express": "^4.17.1",
-    "express-router": "^0.0.1",
-    "express-validator": "^5.3.0",
-    "mongoose": "^5.12.10",
-    "morgan": "^1.10.0",
+    "axios": "^0.21.1",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
     "nodemon": "^2.0.7"
   }
 }

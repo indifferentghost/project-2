@@ -1,28 +1,53 @@
 const express = require('express')
 const app = express()
-const mongoose = require('mongoose')
-const morgan = require('morgan')
-const dotenv = require('dotenv')
-dotenv.config()
-const postRoutes = require('./routes/post')
-
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('DB Connected'))
-
-mongoose.connection.on('error', err => {
-console.log(`DB connection error: ${err}`)
-})
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(morgan('dev'))
 
-app.use('/', postRoutes)
+const requests = [];
 
+app.use('/', async (req, res) => {
+	const { type } = req.body;
 
-const PORT = process.env.PORT || 4000
+	if (['compute_max', 'compute_min'].includes(type)) {
+		requests.push({ length: req.body.length, max: 0, index: 1 });
+		const requestId = requests.length - 1;
+
+		return res.json({
+			type: "compare",
+			left: 0,
+			right: 1,
+			request_id: requestId
+		})
+	}
+
+	if (type === 'comp_result') {
+		const value = requests[req.body.request_id]
+
+		if (req.body.answer) {
+			value.max = value.index;
+		}
+
+		value.index += 1
+
+		if (value.index === value.length) {
+			return res.json({
+				"type": "done",
+				"result": value.max,
+			})
+		}
+
+		res.json({
+			type: "compare",
+			left: value.max,
+			right: value.index,
+			request_id: req.body.request_id
+		})
+	}
+});
+
+const PORT = 5000
+
 app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`)
 })
